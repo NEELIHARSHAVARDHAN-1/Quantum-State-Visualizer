@@ -13,25 +13,22 @@ def state_from_circuit(circ: QuantumCircuit, as_density=False):
     if as_density:
         return DensityMatrix(sv)
     return sv
-
 def reduced_single_qubit_rhos(rho, num_qubits: int):
-    # rho: Statevector or DensityMatrix
+    from qiskit.quantum_info import DensityMatrix, partial_trace, Statevector
+
     if isinstance(rho, Statevector):
         dm = DensityMatrix(rho)
     else:
         dm = rho
+
     rhos = []
     for i in range(num_qubits):
-        # Trace out all but qubit i; qiskit uses little-endian ordering
-        keep = [i]
+        # Trace out all other qubits
         traced = partial_trace(dm, [j for j in range(num_qubits) if j != i])
-        # Ensure 2x2
-        mat = np.array(traced.data, dtype=complex)
-        if mat.shape != (2,2):
-            # Some versions return a DensityMatrix with dims; convert explicitly
-            mat = mat.reshape(2,2)
+        mat = np.array(traced.data, dtype=complex).reshape(2,2)
         rhos.append(mat)
     return rhos
+
 
 def pauli_expectations(rho_1q: np.ndarray):
     X = np.array([[0,1],[1,0]], dtype=complex)
