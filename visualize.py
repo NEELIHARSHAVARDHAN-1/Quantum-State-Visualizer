@@ -8,19 +8,32 @@ from utils import (circuit_from_qasm_str, state_from_circuit,
                    purity, von_neumann_entropy, example_circuit)
 
 def plot_bloch(ax, x, y, z, title):
+    import numpy as np
+
+    # Sphere surface
     u = np.linspace(0, 2*np.pi, 60)
     v = np.linspace(0, np.pi, 30)
     xs = np.outer(np.cos(u), np.sin(v))
     ys = np.outer(np.sin(u), np.sin(v))
     zs = np.outer(np.ones_like(u), np.cos(v))
-    ax.plot_surface(xs, ys, zs, alpha=0.1, linewidth=0)
-    ax.quiver(0,0,0, 1,0,0, length=1, arrow_length_ratio=0.1)
-    ax.quiver(0,0,0, 0,1,0, length=1, arrow_length_ratio=0.1)
-    ax.quiver(0,0,0, 0,0,1, length=1, arrow_length_ratio=0.1)
-    ax.quiver(0,0,0, x, y, z, length=1, arrow_length_ratio=0.1)
+    ax.plot_surface(xs, ys, zs, alpha=0.15, color="lightblue", linewidth=0)
+
+    # Axes
+    ax.quiver(0,0,0, 1,0,0, color="black", linewidth=1, arrow_length_ratio=0.1)
+    ax.quiver(0,0,0, 0,1,0, color="black", linewidth=1, arrow_length_ratio=0.1)
+    ax.quiver(0,0,0, 0,0,1, color="black", linewidth=1, arrow_length_ratio=0.1)
+
+    # State vector (only if not near zero)
+    if abs(x) + abs(y) + abs(z) > 1e-6:
+        ax.quiver(0,0,0, x, y, z, color="red", linewidth=2, arrow_length_ratio=0.15)
+    else:
+        ax.scatter([0],[0],[0], color="red", s=50)  # dot at center
+
+    # Style
     ax.set_xlim([-1,1]); ax.set_ylim([-1,1]); ax.set_zlim([-1,1])
     ax.set_box_aspect([1,1,1])
     ax.set_title(title)
+    ax.axis("off")
 
 def main():
     parser = argparse.ArgumentParser()
